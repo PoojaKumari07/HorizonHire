@@ -260,7 +260,8 @@ export const login = async (req, res) => {
     return res.status(200).cookie("token", token, {
       maxAge: 1 * 24 * 60 * 60 * 1000,
       httpOnly: true,
-      sameSite: 'strict',
+      sameSite: 'none',  // Allow cross-origin cookies
+      secure: true  
     }).json({ message: `Welcome back ${user.fullname}`, user, success: true });
   } catch (error) {
     console.error("Login Error:", error);
@@ -268,9 +269,22 @@ export const login = async (req, res) => {
   }
 };
 
+// export const logout = async (req, res) => {
+//   try {
+//     return res.status(200).cookie("token", "", { maxAge: 0 }).json({ message: "Logged out successfully.", success: true });
+//   } catch (error) {
+//     console.error("Logout Error:", error);
+//     return res.status(500).json({ message: "Logout failed.", success: false });
+//   }
+// };
 export const logout = async (req, res) => {
   try {
-    return res.status(200).cookie("token", "", { maxAge: 0 }).json({ message: "Logged out successfully.", success: true });
+    return res.status(200).cookie("token", "", { 
+      maxAge: 0,
+      httpOnly: true,
+      sameSite: 'none',
+      secure: true
+    }).json({ message: "Logged out successfully.", success: true });
   } catch (error) {
     console.error("Logout Error:", error);
     return res.status(500).json({ message: "Logout failed.", success: false });
