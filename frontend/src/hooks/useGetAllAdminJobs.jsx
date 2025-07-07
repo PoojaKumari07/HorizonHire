@@ -1,24 +1,57 @@
+// import { setAllAdminJobs } from '@/redux/jobSlice'
+// import { JOB_API_END_POINT } from '@/utils/constant'
+// import axios from 'axios'
+// import { useEffect } from 'react'
+// import { useDispatch } from 'react-redux'
+
+// const useGetAllAdminJobs = () => {
+//     const dispatch = useDispatch();
+//     useEffect(()=>{
+//         const fetchAllAdminJobs = async () => {
+//             try {
+//                 const res = await axios.get(`${JOB_API_END_POINT}/getadminjobs`,{withCredentials:true});
+//                 if(res.data.success){
+//                     dispatch(setAllAdminJobs(res.data.jobs));
+//                 }
+//             } catch (error) {
+//                 console.log(error);
+//             }
+//         }
+//         fetchAllAdminJobs();
+//     },[])
+// }
+
+// export default useGetAllAdminJobs
+
+// useGetAllAdminJobs.js
 import { setAllAdminJobs } from '@/redux/jobSlice'
 import { JOB_API_END_POINT } from '@/utils/constant'
 import axios from 'axios'
 import { useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 const useGetAllAdminJobs = () => {
     const dispatch = useDispatch();
-    useEffect(()=>{
+    const { user } = useSelector(store => store.auth);
+    
+    useEffect(() => {
+        // Only fetch if user is authenticated and is a recruiter
+        if (!user || user.role !== 'recruiter') return;
+        
         const fetchAllAdminJobs = async () => {
             try {
-                const res = await axios.get(`${JOB_API_END_POINT}/getadminjobs`,{withCredentials:true});
-                if(res.data.success){
+                const res = await axios.get(`${JOB_API_END_POINT}/getadminjobs`, {withCredentials: true});
+                if (res.data.success) {
                     dispatch(setAllAdminJobs(res.data.jobs));
                 }
             } catch (error) {
-                console.log(error);
+                if (error.response?.status !== 401) {
+                    console.log(error);
+                }
             }
         }
         fetchAllAdminJobs();
-    },[])
+    }, [user, dispatch])
 }
 
 export default useGetAllAdminJobs
